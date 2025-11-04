@@ -1,4 +1,4 @@
-FROM openjdk:21
+FROM eclipse-temurin:21
 LABEL authors="juliodesarrollo"
 
 # CREA UN DIRECTORIO TEMPORAL
