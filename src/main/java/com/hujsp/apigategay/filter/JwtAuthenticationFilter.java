@@ -44,6 +44,11 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
         if (isExcludedPath) {
             return chain.filter(exchange);
         }
+        // Permitir libremente si la cabecera X-Public-Route está en true
+        String publicHeader = exchange.getRequest().getHeaders().getFirst("X-Public-Route");
+        if(publicHeader != null && publicHeader.equalsIgnoreCase("true")){
+            return chain.filter(exchange);
+        }
 
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if(authHeader == null || !authHeader.startsWith("Bearer ")){
