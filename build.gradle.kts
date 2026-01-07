@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.hujsp"
-version = "0.0.1-SNAPSHOT"
+version = System.getenv("APP_VERSION") ?: "0.0.0-LOCAL"
 
 java {
     toolchain {
@@ -18,7 +18,7 @@ repositories {
     maven { url = uri("https://repo.spring.io/milestone") }
 }
 
-extra["springCloudVersion"] = "2025.0.0-RC1"
+extra["springCloudVersion"] = "2025.0.0"
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -38,16 +38,14 @@ dependencyManagement {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
-// configuración para usar perfiles en tiempo de ejecución
-tasks {
-    withType<JavaExec> {
-        if(project.hasProperty("springProfile")){
-            systemProperty("spring.profiles.active", project.property("springProfile").toString())
-        }
-    }
 
-    bootJar{
-        archiveBaseName.set("apiGatewayMicroservicio")
-        archiveVersion.set("0.0.1-SNAPSHOT")
+tasks.bootJar {
+    archiveBaseName.set("apiGatewayMicroservicio")
+}
+
+tasks.processResources {
+    inputs.property("version", project.version)
+    filesMatching("application.properties") {
+        expand("project" to mapOf("version" to project.version))
     }
 }
