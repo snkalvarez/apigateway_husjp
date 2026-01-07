@@ -1,0 +1,42 @@
+name: CI - Dev
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build-dev:
+    runs-on: ubuntu-22.04
+    environment: dev
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Build (DEV)
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build
+        env:
+          APP_VERSION: dev-${GITHUB_SHA:0:7}
+
+      - name: Docker login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build & Push Docker (DEV)
+        run: |
+          docker build \
+            --build-arg APP_VERSION=dev-${GITHUB_SHA:0:7} \
+            --build-arg PROFILE=dev \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/microservices:dev .
+          
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/microservices:dev
