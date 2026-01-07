@@ -4,5 +4,11 @@
 |  | |  || '-' '|  | ' '-' '\ '-'  |  |  |  \   --.|   .'.   |\ '-'  |  \   '
 `--' `--'|  |-' `--' .`-  /  `--`--'  `--'   `----''--'   '--' `--`--'.-'  /
          `--'        `---'                                            `---'
-${application.title} ${application.version}
-Powered by Spring Boot ${spring-boot.version}
+--------------------------------------------------
+ Application : ${spring.application.name}
+ Version     : v${app.version}
+ Profile     : ${spring.profiles.active}
+ Java        : ${java.version}
+ Timezone    : ${user.timezone}
+ OS          : ${os.name}
+--------------------------------------------------
