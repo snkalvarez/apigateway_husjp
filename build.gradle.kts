@@ -44,8 +44,10 @@ tasks.bootJar {
 }
 
 tasks.processResources {
-    inputs.property("version", project.version)
+    inputs.property("project.version", project.version)
+
     filesMatching("application.properties") {
-        expand("project" to mapOf("version" to project.version))
+        expand(mapOf("project.version" to project.version)
+        )
     }
 }
