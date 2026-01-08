@@ -38,7 +38,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build imag (DEV)
-        run: docker build --build-arg APP_VERSION=dev-${GITHUB_SHA:0:7} -t ${{ secrets.DOCKERHUB_USERNAME }}/microservices:apigateway-dev .
+        run: docker build --build-arg APP_VERSION=dev-${GITHUB_SHA:0:7} -t ${{ secrets.DOCKERHUB_USERNAME }}/apigateway:dev-${GITHUB_SHA:0:7} .
 
       - name: Push image (DEV)
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/microservices:apigateway-dev
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/apigateway:dev-${GITHUB_SHA:0:7}
