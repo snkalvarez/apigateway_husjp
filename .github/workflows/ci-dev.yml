@@ -32,11 +32,8 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build & Push Docker (DEV)
-        run: |
-          docker build \
-            --build-arg APP_VERSION=dev-${GITHUB_SHA:0:7} \
-            --build-arg PROFILE=dev \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/microservices:dev .
-          
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/microservices:dev
+      - name: Build imag (DEV)
+        run: docker build --build-arg APP_VERSION=dev-${GITHUB_SHA:0:7} -t ${{ secrets.DOCKERHUB_USERNAME }}/microservices:dev .
+
+      - name: Push image (DEV)
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/microservices:dev

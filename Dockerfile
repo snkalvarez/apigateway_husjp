@@ -16,7 +16,4 @@ ARG PROFILE=dev
 ENV SPRING_PROFILES_ACTIVE=${PROFILE}
 
 # ENTRYPOINT
-ENTRYPOINT exec java \
-             -Duser.timezone=America/Bogota \
-             -Dspring.profiles.active=$SPRING_PROFILES_ACTIVE \
-             -jar app.jar
+ENTRYPOINT ["java", "-Duser.timezone=America/Bogota", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}", "-jar", "app.jar"]
