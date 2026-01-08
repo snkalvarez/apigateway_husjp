@@ -22,9 +22,7 @@ jobs:
       - name: Build (DEV)
         run: |
           chmod +x gradlew
-          ./gradlew clean build
-        env:
-          APP_VERSION: dev-${GITHUB_SHA:0:7}
+          APP_VERSION=dev-${GITHUB_SHA:0:7} ./gradlew clean build
 
       - name: Docker login
         uses: docker/login-action@v3
