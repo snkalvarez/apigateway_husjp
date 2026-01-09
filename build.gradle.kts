@@ -44,10 +44,10 @@ tasks.bootJar {
 }
 
 tasks.processResources {
-    inputs.property("project.version", project.version)
+    inputs.property("version", project.version)
 
-    filesMatching("application.properties") {
-        expand(mapOf("project.version" to project.version)
-        )
+    filesMatching("**/application.properties") {
+        // En lugar de expand(), usamos filter para tener control total
+        filter<org.apache.tools.ant.filters.ReplaceTokens>("tokens" to mapOf("project.version" to project.version.toString()))
     }
 }
