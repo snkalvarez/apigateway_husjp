@@ -1,25 +1,18 @@
-# ===== STAGE 1: BUILD =====
-FROM gradle:8.5-jdk21 AS builder
-WORKDIR /app
+FROM eclipse-temurin:21
+LABEL authors="juliodesarrollo"
 
-COPY gradlew .
-COPY gradle gradle
-COPY build.gradle.kts settings.gradle.kts ./
-RUN chmod +x gradlew
-RUN ./gradlew dependencies --no-daemon
+# CREA UN DIRECTORIO TEMPORAL
+VOLUME /tmp
 
-COPY . .
-ARG APP_VERSION
-RUN APP_VERSION=${APP_VERSION} ./gradlew clean bootJar --no-daemon
+# COPIA EL .JAR GENERADO
+COPY build/libs/apiGatewayMicroservicio-0.0.0-LOCAL.jar app.jar
 
+# Establece un perfil predeterminado como dev
+ARG PROFILE=dev
+ENV SPRING_PROFILES_ACTIVE=$PROFILE
 
-# ===== STAGE 2: RUNTIME =====
-FROM eclipse-temurin:21-jre
-WORKDIR /app
+# MONTA EL ARCHIVO env.properties EN LA RAIZ DEL CONTENEDOR
+VOLUME /env.properties
 
-ARG APP_VERSION
-COPY --from=builder /app/build/libs/apiGatewayMicroservicio-${APP_VERSION}.jar app.jar
-
-ENV SPRING_PROFILES_ACTIVE=dev
-
-ENTRYPOINT ["java", "-Duser.timezone=America/Bogota", "-jar", "app.jar"]
+# establece el punto de entada con el perfil activo
+ENTRYPOINT ["java", "-Duser.timezone=America/Bogota", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}", "-Dspring.config.import=file:/env.properties", "-jar", "app.jar"]
