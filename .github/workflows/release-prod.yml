@@ -31,9 +31,11 @@ jobs:
           java-version: 21
 
       - name: Build JAR (PROD)
+        env:
+          APP_VERSION: ${{ env.VERSION }}
         run: |
           chmod +x gradlew
-          APP_VERSION=${{ env.VERSION }} ./gradlew clean bootJar
+          ./gradlew clean bootJar
 
       - name: Docker login
         uses: docker/login-action@v3
