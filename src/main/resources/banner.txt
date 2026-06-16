@@ -7,6 +7,7 @@
 --------------------------------------------------
  Application : ${spring.application.name}
  Version     : v${app.version}
+ Versión     :${application.version}
  Profile     : ${spring.profiles.active}
  Java        : ${java.version}
  Timezone    : ${user.timezone}
