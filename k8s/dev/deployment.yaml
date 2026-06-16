@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: gateway-service
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: gateway-service
+
+  template:
+    metadata:
+      labels:
+        app: gateway-service
+
+    spec:
+      containers:
+        - name: gateway-service
+
+          image: gateway-service:latest
+          imagePullPolicy: Never
+
+          ports:
+            - containerPort: 8100
+
+          volumeMounts:
+            - name: gateway-config
+              mountPath: /config/application.properties
+              subPath: application.properties
+
+          env:
+            - name: SECRET_KEY_PRIVATE_DEV
+              valueFrom:
+                secretKeyRef:
+                  name: shared-jwt-secret
+                  key: SECURITY_JWT_KEY_PRIVATE
+
+      volumes:
+        - name: gateway-config
+          configMap:
+            name: gateway-config

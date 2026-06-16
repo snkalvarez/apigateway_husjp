@@ -16,7 +16,7 @@ public class CorsConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        List<String> allowedOrigins = Arrays.asList("http://localhost:5173", "https://192.168.16.160:5173", "http://optimus:5175", "http://optimus:5174");
+        List<String> allowedOrigins = Arrays.asList("http://localhost:5173", "http://192.168.8.1:5173", "http://optimus:5175", "http://optimus:5174");
         config.setAllowedOrigins(allowedOrigins); // O usa dominios específicos en producción
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
