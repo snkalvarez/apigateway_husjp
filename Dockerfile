@@ -1,21 +1,18 @@
 FROM eclipse-temurin:21
 LABEL authors="juliodesarrollo"
 
-# Recibe la versión desde GitHub Actions (por defecto usa la local si compilas a mano)
+# Recibe la versión desde GitHub Actions
 ARG APP_VERSION=0.0.0-LOCAL
 
-# CREA UN DIRECTORIO TEMPORAL
+# CREA UN DIRECTORIO TEMPORAL (Opcional, útil para Tomcat/Spring)
 VOLUME /tmp
 
 # COPIA EL .JAR GENERADO USANDO LA VARIABLE DE VERSIÓN
 COPY build/libs/apiGatewayMicroservicio-${APP_VERSION}.jar app.jar
 
-# Establece un perfil predeterminado como dev
+# Establece un perfil predeterminado como dev (Kubernetes lo puede sobrescribir)
 ARG PROFILE=dev
 ENV SPRING_PROFILES_ACTIVE=$PROFILE
 
-# MONTA EL ARCHIVO env.properties EN LA RAIZ DEL CONTENEDOR
-VOLUME /env.properties
-
-# establece el punto de entada con el perfil activo
-ENTRYPOINT ["java", "-Duser.timezone=America/Bogota", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}", "-Dspring.config.import=file:/env.properties", "-jar", "app.jar"]
+# El punto de entrada ahora es limpio y estándar
+ENTRYPOINT ["java", "-Duser.timezone=America/Bogota", "-jar", "app.jar"]
