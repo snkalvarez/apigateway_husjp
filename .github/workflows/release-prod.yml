@@ -1,4 +1,4 @@
-name: Release - Production
+name: CI-CD - Gateway Service
 
 on:
   push:
@@ -6,23 +6,18 @@ on:
       - "v*"
 
 jobs:
-  release:
+  build:
+    name: CI - Build & Push Docker
     runs-on: ubuntu-22.04
-    environment: prod
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      # Cache Gradle
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ hashFiles('**/*.gradle*') }}
-
-      - name: Extract version
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+      - name: Extract version from tag
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -30,9 +25,7 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Build JAR (PROD)
-        env:
-          APP_VERSION: ${{ env.VERSION }}
+      - name: Build JAR
         run: |
           chmod +x gradlew
           ./gradlew clean bootJar
@@ -43,11 +36,38 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build & Push Docker (PROD)
+      - name: Build & Push Docker Image
         run: |
           IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/apigateway
           VERSION=${{ env.VERSION }}
 
-          docker build --build-arg APP_VERSION=$VERSION -t $IMAGE:$VERSION -t $IMAGE:latest .
+          echo "Building image $IMAGE:$VERSION"
 
-          docker push --all-tags $IMAGE
+          docker build \
+            --build-arg APP_VERSION=$VERSION \
+            -t $IMAGE:$VERSION .
+
+          docker push $IMAGE:$VERSION
+
+  deploy:
+    name: CD - Deploy to Kubernetes
+    needs: build
+    runs-on: [self-hosted, linux, x64]
+
+    steps:
+      - name: Extract version (same tag)
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Deploy to K8s
+        run: |
+          IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/apigateway
+
+          echo "Deploying $IMAGE:$VERSION to Kubernetes"
+
+          kubectl set image deployment/gateway-service \
+            gateway-service=$IMAGE:$VERSION \
+            -n dev
+
+          kubectl rollout status deployment/gateway-service -n dev
