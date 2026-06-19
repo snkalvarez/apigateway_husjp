@@ -8,7 +8,7 @@ ARG APP_VERSION=0.0.0-LOCAL
 VOLUME /tmp
 
 # COPIA EL .JAR GENERADO USANDO LA VARIABLE DE VERSIÓN
-COPY build/libs/apiGatewayMicroservicio-${APP_VERSION}.jar app.jar
+COPY build/libs/*.jar app.jar
 
 # Establece un perfil predeterminado como dev (Kubernetes lo puede sobrescribir)
 ARG PROFILE=dev
