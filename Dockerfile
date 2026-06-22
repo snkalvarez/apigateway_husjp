@@ -1,25 +1,18 @@
-# ===== STAGE 1: BUILD =====
-FROM gradle:8.5-jdk21 AS builder
-WORKDIR /app
+FROM eclipse-temurin:21
+LABEL authors="juliodesarrollo"
 
-COPY gradlew .
-COPY gradle gradle
-COPY build.gradle.kts settings.gradle.kts ./
-RUN chmod +x gradlew
-RUN ./gradlew dependencies --no-daemon
+# Recibe la versión desde GitHub Actions
+ARG APP_VERSION=0.0.0-LOCAL
 
-COPY . .
-ARG APP_VERSION
-RUN APP_VERSION=${APP_VERSION} ./gradlew clean bootJar --no-daemon
+# CREA UN DIRECTORIO TEMPORAL (Opcional, útil para Tomcat/Spring)
+VOLUME /tmp
 
+# COPIA EL .JAR GENERADO USANDO LA VARIABLE DE VERSIÓN
+COPY build/libs/*.jar app.jar
 
-# ===== STAGE 2: RUNTIME =====
-FROM eclipse-temurin:21-jre
-WORKDIR /app
+# Establece un perfil predeterminado como dev (Kubernetes lo puede sobrescribir)
+ARG PROFILE=dev
+ENV SPRING_PROFILES_ACTIVE=$PROFILE
 
-ARG APP_VERSION
-COPY --from=builder /app/build/libs/apiGatewayMicroservicio-${APP_VERSION}.jar app.jar
-
-ENV SPRING_PROFILES_ACTIVE=dev
-
+# El punto de entrada ahora es limpio y estándar
 ENTRYPOINT ["java", "-Duser.timezone=America/Bogota", "-jar", "app.jar"]
