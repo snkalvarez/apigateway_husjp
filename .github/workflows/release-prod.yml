@@ -61,6 +61,8 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Deploy to K8s
+        env:
+          KUBECONFIG: /etc/rancher/k3s/k3s.yaml
         run: |
           IMAGE=${{ secrets.DOCKERHUB_USERNAME }}/apigateway
 
