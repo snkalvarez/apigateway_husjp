@@ -1,25 +1,44 @@
-# ===== STAGE 1: BUILD =====
-FROM gradle:8.5-jdk21 AS builder
+FROM gradle:8.7-jdk21-jammy AS builder
 WORKDIR /app
 
-COPY gradlew .
-COPY gradle gradle
-COPY build.gradle.kts settings.gradle.kts ./
+# 1. Copiar primero el envoltorio de Gradle correctamente
+COPY gradle/ gradle/
+COPY gradlew ./
+COPY gradlew.bat ./
+
+# 2. Corregir posibles saltos de línea de Windows (CRLF) a Linux (LF)
+RUN sed -i 's/\r$//' gradlew
+
+# 3. Dar permisos de ejecución inmediatamente
 RUN chmod +x gradlew
-RUN ./gradlew dependencies --no-daemon
 
-COPY . .
-ARG APP_VERSION
-RUN APP_VERSION=${APP_VERSION} ./gradlew clean bootJar --no-daemon
+# 4. Copiar configuraciones y descargar dependencias
+COPY build.gradle.kts settings.gradle.kts ./
+RUN ./gradlew dependencies --no-daemon || true
 
+# 5. Copiar código fuente y compilar
+COPY src ./src
+ARG APP_VERSION=0.0.0-LOCAL
+RUN ./gradlew clean bootJar -Pversion=$APP_VERSION --no-daemon
 
-# ===== STAGE 2: RUNTIME =====
-FROM eclipse-temurin:21-jre
+# =========================
+
+FROM eclipse-temurin:21-jre-jammy
+LABEL authors="juliodesarrollo"
+
 WORKDIR /app
 
-ARG APP_VERSION
-COPY --from=builder /app/build/libs/apiGatewayMicroservicio-${APP_VERSION}.jar app.jar
+RUN useradd -ms /bin/bash appuser
 
-ENV SPRING_PROFILES_ACTIVE=dev
+COPY --from=builder /app/build/libs/*.jar app.jar
+
+RUN chown appuser:appuser app.jar
+
+VOLUME /tmp
+
+ARG PROFILE=dev
+ENV SPRING_PROFILES_ACTIVE=$PROFILE
+
+USER appuser
 
 ENTRYPOINT ["java", "-Duser.timezone=America/Bogota", "-jar", "app.jar"]
