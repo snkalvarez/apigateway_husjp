@@ -66,8 +66,6 @@ jobs:
 
           echo "Deploying $IMAGE:$VERSION to Kubernetes"
 
-          kubectl set image deployment/gateway-service \
-            gateway-service=$IMAGE:$VERSION \
-            -n prod
+          kubectl set image deployment/gateway-service gateway-service=$IMAGE:$VERSION -n prod
 
           kubectl rollout status deployment/gateway-service -n prod

@@ -1,0 +1,11 @@
+.gradle/
+.idea/
+build/
+bin/
+out/
+.git/
+.gitignore
+*.iml
+
+# EXCEPCIÓN: No ignores la carpeta donde se genera el JAR
+!build/libs/*.jar
