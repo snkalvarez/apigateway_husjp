@@ -1,10 +1,11 @@
 package com.hujsp.apigategay.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.reactive.CorsWebFilter;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
@@ -12,12 +13,20 @@ import java.util.List;
 @Configuration
 public class CorsConfig {
 
+    @Value("${app.cors.allowed-origins:http://localhost:5173}")
+    private String allowedOriginsProperty;
+
     @Bean
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        List<String> allowedOrigins = Arrays.asList("http://localhost:5173", "http://192.168.8.1:5173", "http://optimus:5175", "http://optimus:5174");
-        config.setAllowedOrigins(allowedOrigins); // O usa dominios específicos en producción
+
+        List<String> allowedOrigins = Arrays.stream(allowedOriginsProperty.split(","))
+                .map(String::trim)
+                .filter(origin -> !origin.isEmpty())
+                .toList();
+
+        config.setAllowedOrigins(allowedOrigins);
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
 
