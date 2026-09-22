@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gateway-service
+  name: gateway
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: gateway-service
+      app: gateway
   template:
     metadata:
       labels:
-        app: gateway-service
+        app: gateway
     spec:
       containers:
-        - name: gateway-service
-          image: desarrollohusjp/apigateway:1.0.7
+        - name: gateway
+          image: desarrollohusjp/apygateway:v1.0.0
           imagePullPolicy: Always
           ports:
             - containerPort: 8100
@@ -24,11 +24,13 @@ spec:
               mountPath: /config/application.properties
               subPath: application.properties
           env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: dev
             # 1. Le indicamos a Spring Boot que cargue de forma prioritaria el archivo externo montado
             - name: SPRING_CONFIG_IMPORT
               value: "file:/config/application.properties"
             # 2. Inyectamos la variable del secreto para que Spring la resuelva dentro del archivo
-            - name: SECRET_KEY_PRIVATE_DEV
+            - name: SECRET_KEY_PRIVATE
               valueFrom:
                 secretKeyRef:
                   name: shared-secrets
@@ -36,4 +38,4 @@ spec:
       volumes:
         - name: gateway-config-volume
           configMap:
-            name: gateway-config
+            name: gateway

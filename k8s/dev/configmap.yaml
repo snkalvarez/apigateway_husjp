@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 
 metadata:
-  name: gateway-config
+  name: gateway
 
 data:
   application.properties: |
@@ -11,17 +11,45 @@ data:
     server.port=8100
 
     app.version=1.0.0
+    app.cors.allowed-origins=${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://192.168.8.1:5173,http://optimus:5175,http://optimus:5174}
 
-    security.jwt.key.private=${SECRET_KEY_PRIVATE_DEV}
+    security.jwt.key.private=${SECRET_KEY_PRIVATE}
 
-    spring.cloud.gateway.routes[0].id=auth-service
-    spring.cloud.gateway.routes[0].uri=http://auth-service:8101
-    spring.cloud.gateway.routes[0].predicates[0]=Path=/api-auth-service/**
+    spring.cloud.gateway.routes[0].id=authentication
+    spring.cloud.gateway.routes[0].uri=http://authentication:8080
+    spring.cloud.gateway.routes[0].predicates[0]=Path=/api-auth/**
     spring.cloud.gateway.routes[0].filters[0]=StripPrefix=1
-    spring.cloud.gateway.routes[1].id=dinamica-service
-    spring.cloud.gateway.routes[1].uri=http://dinamica-service:8102
-    spring.cloud.gateway.routes[1].predicates[0]=Path=/api-dinamica-service/**
+
+    spring.cloud.gateway.routes[1].id=dinamica
+    spring.cloud.gateway.routes[1].uri=http://dinamica:8080
+    spring.cloud.gateway.routes[1].predicates[0]=Path=/api-dinamica/**
     spring.cloud.gateway.routes[1].filters[0]=StripPrefix=1
+
+    spring.cloud.gateway.routes[2].id=rehabilitacion
+    spring.cloud.gateway.routes[2].uri=http://rehabilitacion:8080
+    spring.cloud.gateway.routes[2].predicates[0]=Path=/api-rehabilitacion/**
+    spring.cloud.gateway.routes[2].filters[0]=StripPrefix=1
+
+    spring.cloud.gateway.routes[3].id=referencia
+    spring.cloud.gateway.routes[3].uri=http://referencia:8080
+    spring.cloud.gateway.routes[3].predicates[0]=Path=/api-referencia/**
+    spring.cloud.gateway.routes[3].filters[0]=StripPrefix=1
+
+    spring.cloud.gateway.routes[4].id=nutricion
+    spring.cloud.gateway.routes[4].uri=http://nutricion:8080
+    spring.cloud.gateway.routes[4].predicates[0]=Path=/api-nutricion/**
+    spring.cloud.gateway.routes[4].filters[0]=StripPrefix=1
+
+    spring.cloud.gateway.routes[5].id=monitorizacion
+    spring.cloud.gateway.routes[5].uri=http://monitorizacion:8080
+    spring.cloud.gateway.routes[5].predicates[0]=Path=/api-monitorizacion/**
+    spring.cloud.gateway.routes[5].filters[0]=StripPrefix=1
+
+    spring.cloud.gateway.routes[6].id=ia-transcription
+    spring.cloud.gateway.routes[6].uri=http://ia-transcription:8080
+    spring.cloud.gateway.routes[6].predicates[0]=Path=/api-ia-transcription/**
+    spring.cloud.gateway.routes[6].filters[0]=StripPrefix=1
+
     logging.level.org.springframework.security=TRACE
     logging.level.org.springframework.web=DEBUG
     logging.level.org.springframework.cloud.gateway=DEBUG
