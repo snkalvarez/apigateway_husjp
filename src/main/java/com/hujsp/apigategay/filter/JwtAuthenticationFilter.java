@@ -39,6 +39,15 @@ public class JwtAuthenticationFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String path = exchange.getRequest().getURI().getPath();
 
+        // Browsers cannot set Authorization on a native WebSocket handshake.
+        // Socket.IO validates this handshake's JWT in the service CONNECT event.
+        // Keep every non-WebSocket request protected by this gateway filter.
+        boolean isIaTranscriptionWebSocket = path.startsWith("/api-ia-transcription/socket.io/")
+                && "websocket".equalsIgnoreCase(exchange.getRequest().getHeaders().getUpgrade());
+        if (isIaTranscriptionWebSocket) {
+            return chain.filter(exchange);
+        }
+
         // permitir libremente el login y el refresh token
         boolean isExcludedPath = excludedPaths.stream().anyMatch(path::contains);
         if (isExcludedPath) {
